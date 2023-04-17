@@ -1,7 +1,6 @@
 package handler
 
 import (
-	"encoding/json"
 	"net/http"
 )
 
@@ -14,16 +13,29 @@ type Result struct {
 
 func Handler(w http.ResponseWriter, r *http.Request) {
 
-	w.Header().Set("Content-Type", "application/json;charset=utf-8")
+	method := r.Method
 
-	data := "Hello! Smart Zhang!"
+	if method == "GET" {
+		v := r.URL.Query()
+		a := v.Get("echostr")
+		w.Write([]byte(a))
+	} else if method == "POST" {
 
-	response, _ := json.Marshal(&Result{
-		Code:    200,
-		Message: "ok",
-		Data:    data,
-	})
+	} else {
+		w.Write([]byte("error"))
+		return
+	}
 
-	_, _ = w.Write(response)
+	// w.Header().Set("Content-Type", "application/json;charset=utf-8")
+
+	// data := "Hello! Smart Zhang!"
+
+	// response, _ := json.Marshal(&Result{
+	// 	Code:    200,
+	// 	Message: "ok",
+	// 	Data:    data,
+	// })
+
+	// _, _ = w.Write(response)
 
 }
