@@ -4,14 +4,9 @@ import (
 	"encoding/xml"
 	"io/ioutil"
 	"net/http"
+	"os"
+	"time"
 )
-
-// List 会返回给交付层一个列表回应
-type Result struct {
-	Code    int         `json:"code"`    //请求状态代码
-	Message interface{} `json:"message"` //请求结果提示
-	Data    interface{} `json:"data"`    //请求结果
-}
 
 func Handler(w http.ResponseWriter, r *http.Request) {
 
@@ -42,6 +37,26 @@ func msgHandler(w http.ResponseWriter, r *http.Request) {
 	if err := xml.Unmarshal(body, &msg); err == nil {
 		w.Write([]byte("success"))
 	}
+
+	key := os.Getenv("API_KEY")
+
+	rspMsg := &WxRspMsg{
+		FromUserName: msg.ToUserName,
+		ToUserName:   msg.FromUserName,
+		CreateTime:   time.Now().Unix(),
+		MsgType:      "text",
+		Content:      "hello",
+	}
+
+	rspMsg.Content = key
+
+	result, err := xml.Marshal(rspMsg)
+	if err != nil {
+		w.Write([]byte("success"))
+	}
+
+	w.Write(result)
+
 }
 
 func defaultHandler(w http.ResponseWriter, r *http.Request) {
@@ -57,4 +72,13 @@ type WxReqMsg struct {
 	MsgId        string `xml:"MsgId"`
 	MsgDataId    string `xml:"MsgDataId"`
 	Idx          string `xml:"Idx"`
+}
+
+type WxRspMsg struct {
+	ToUserName   string   `xml:"ToUserName"`
+	FromUserName string   `xml:"FromUserName"`
+	CreateTime   int64    `xml:"CreateTime"`
+	MsgType      string   `xml:"MsgType"`
+	Content      string   `xml:"Content"`
+	XMLName      xml.Name `xml:"xml"`
 }
