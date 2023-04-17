@@ -5,6 +5,7 @@ import (
 	"encoding/xml"
 	"fmt"
 	"io/ioutil"
+	"log"
 	"net/http"
 	"os"
 	"strings"
@@ -98,6 +99,8 @@ func SendMsg(msg string) string {
 	defer resp.Body.Close()
 
 	respByte, _ := ioutil.ReadAll(resp.Body)
+
+	log.Printf(string(respByte))
 
 	var rspMsg ChatRspMsg
 
