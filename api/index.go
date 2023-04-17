@@ -1,6 +1,8 @@
 package handler
 
 import (
+	"encoding/xml"
+	"io/ioutil"
 	"net/http"
 )
 
@@ -15,27 +17,44 @@ func Handler(w http.ResponseWriter, r *http.Request) {
 
 	method := r.Method
 
-	if method == "GET" {
-		v := r.URL.Query()
-		a := v.Get("echostr")
-		w.Write([]byte(a))
-	} else if method == "POST" {
-
-	} else {
-		w.Write([]byte("error"))
-		return
+	switch method {
+	case "GET":
+		checkHandler(w, r)
+	case "POST":
+		msgHandler(w, r)
+	default:
+		defaultHandler(w, r)
 	}
+}
 
-	// w.Header().Set("Content-Type", "application/json;charset=utf-8")
+func checkHandler(w http.ResponseWriter, r *http.Request) {
+	// TODO 微信校验
+	params := r.URL.Query()
+	value := params.Get("echostr")
+	w.Write([]byte(value))
+}
 
-	// data := "Hello! Smart Zhang!"
+func msgHandler(w http.ResponseWriter, r *http.Request) {
+	body, _ := ioutil.ReadAll(r.Body)
 
-	// response, _ := json.Marshal(&Result{
-	// 	Code:    200,
-	// 	Message: "ok",
-	// 	Data:    data,
-	// })
+	msg := &WxReqMsg{}
 
-	// _, _ = w.Write(response)
+	if err := xml.Unmarshal(body, &msg); err == nil {
+		w.Write([]byte("success"))
+	}
+}
 
+func defaultHandler(w http.ResponseWriter, r *http.Request) {
+	w.Write([]byte("method not suooprt"))
+}
+
+type WxReqMsg struct {
+	ToUserName   string `xml:"ToUserName"`
+	FromUserName string `xml:"FromUserName"`
+	CreateTime   int64  `xml:"CreateTime"`
+	MsgType      string `xml:"MsgType"`
+	Content      string `xml:"Content"`
+	MsgId        string `xml:"MsgId"`
+	MsgDataId    string `xml:"MsgDataId"`
+	Idx          string `xml:"Idx"`
 }
