@@ -1,7 +1,7 @@
 package handler
 
 import (
-	"json"
+	"encoding/json"
 	"net/http"
 )
 
