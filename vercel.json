@@ -1,3 +1,7 @@
 {
-    "maxDuration": 30
-  }
+    "functions": {
+        "api/index": {
+            "maxDuration": 30
+        }
+    }
+}
